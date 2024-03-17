@@ -1,0 +1,9 @@
+# macos
+.DS_Store
+
+# shards
+*.dwarf
+shard.lock
+/lib/
+/bin/
+/.shards/

@@ -1,0 +1,16 @@
+name: tracks
+version: 0.1.0
+license: MIT
+
+targets:
+  tracks:
+    main: src/main.cr
+
+dependencies:
+  kemal:
+    github:  kemalcr/kemal
+    version: ~> 1.4
+
+  lexbor:
+    github:  kostya/lexbor
+    version: ~> 3.1
