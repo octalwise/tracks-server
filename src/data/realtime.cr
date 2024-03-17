@@ -108,7 +108,7 @@ module Tracks
       end
 
       # fetch vehicles from api
-      def self.fetch_vehicles(scheduled : Array(Tracks::Train)) : Array(Tracks::Train)
+      def self.fetch_realtime(scheduled : Array(Tracks::Train)) : Array(Tracks::Train)
         # url params
         params = URI::Params.encode({
           api_key: ENV["API_KEY"],

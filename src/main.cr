@@ -5,7 +5,7 @@ schedule  = Tracks::Data::Scheduled.new
 scheduled = schedule.fetch_trains
 
 # fetch realtime trains
-trains    = Tracks::Data::Realtime.fetch_vehicles(scheduled)
+trains    = Tracks::Data::Realtime.fetch_realtime(scheduled)
 train_ids = trains.map(&.id)
 
 # fetch alerts
@@ -20,7 +20,7 @@ spawn do
     scheduled = schedule.fetch_trains
 
     # fetch realtime trains
-    trains    = Tracks::Data::Realtime.fetch_vehicles(scheduled)
+    trains    = Tracks::Data::Realtime.fetch_realtime(scheduled)
     train_ids = trains.map(&.id)
   end
 end
