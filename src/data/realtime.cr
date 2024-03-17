@@ -1,6 +1,6 @@
 module Tracks
   module Data
-    # vehicles
+    # realtime trains
     module Realtime
       class Data
         include JSON::Serializable
@@ -107,7 +107,7 @@ module Tracks
         end
       end
 
-      # fetch vehicles from api
+      # fetch trains from api
       def self.fetch_realtime(scheduled : Array(Tracks::Train)) : Array(Tracks::Train)
         # url params
         params = URI::Params.encode({
