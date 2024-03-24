@@ -48,6 +48,10 @@ end
 before_all do |env|
   # json content type
   env.response.content_type = "application/json"
+
+  # require auth token
+  auth = env.request.headers["Authorization"]?
+  raise "Client unauthorized" if auth != ENV["AUTH"]
 end
 
 # realtime trains
