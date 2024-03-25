@@ -66,7 +66,7 @@ module Tracks
               time = Time.parse(
                 timepoint.inner_text,
                 "%I:%M%p",
-                Time::Location.load("US/Pacific")
+                Time::Location.fixed(-3600 * 7)
               )
 
               train = timepoint["data-trip-id"].to_i
