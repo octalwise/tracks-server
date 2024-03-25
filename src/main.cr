@@ -64,5 +64,8 @@ get "/alerts" do
   alerts.to_json
 end
 
+# production env
+Kemal.config.env = "production"
+
 # run server
 Kemal.run
