@@ -95,9 +95,7 @@ module Tracks
           Tracks::Stop.new(
             @station,
             scheduled.scheduled,
-            (@departure || @arrival)
-              .not_nil!
-              .to_local_in(Time::Location.fixed(-3600 * 7))
+            (@departure || @arrival).not_nil!
           )
         end
       end
