@@ -63,7 +63,12 @@ module Tracks
             row.css("td.timepoint").map do |timepoint|
               next if timepoint.inner_text == "--"
 
-              time  = Time.parse_local(timepoint.inner_text, "%I:%M%p")
+              time = Time.parse(
+                timepoint.inner_text,
+                "%I:%M%p",
+                Time::Location.load("US/Pacific")
+              )
+
               train = timepoint["data-trip-id"].to_i
 
               # add scheduled stop
