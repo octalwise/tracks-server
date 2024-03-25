@@ -39,7 +39,7 @@ module Tracks
         # document parser
         document = Lexbor::Parser.new(html)
 
-        now = Time.local
+        now = Time.local(Time::Location.fixed(-3600 * 7))
         day_type = now.saturday? || now.sunday? ? "weekend" : "weekday"
 
         document.css("table.caltrain_schedule tbody").each do |table|
@@ -80,7 +80,7 @@ module Tracks
 
       # fetch scheduled trains
       def fetch_trains : Array(Train)
-        now = Time.local
+        now = Time.local(Time::Location.fixed(-3600 * 7))
 
         stops =
           @stops
@@ -93,7 +93,8 @@ module Tracks
                     now.month,
                     now.day,
                     stop.time.hour,
-                    stop.time.minute
+                    stop.time.minute,
+                    location: Time::Location.fixed(-3600 * 7)
                   )
 
                 # previous day
