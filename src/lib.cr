@@ -12,6 +12,6 @@ end
 
 # library
 require "./definitions"
-require "./realtime"
+require "./live"
 require "./scheduled"
 require "./alerts"

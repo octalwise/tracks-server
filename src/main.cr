@@ -4,8 +4,8 @@ require "./lib"
 schedule  = Tracks::Data::Scheduled.new
 scheduled = schedule.fetch_trains
 
-# fetch realtime trains
-trains    = Tracks::Data::Realtime.fetch_realtime(scheduled)
+# fetch live trains
+trains    = Tracks::Data::Live.fetch_live(scheduled)
 train_ids = trains.map(&.id)
 
 # fetch alerts
@@ -19,8 +19,8 @@ spawn do
     # fetch scheduled trains
     scheduled = schedule.fetch_trains
 
-    # fetch realtime trains
-    trains    = Tracks::Data::Realtime.fetch_realtime(scheduled)
+    # fetch live trains
+    trains    = Tracks::Data::Live.fetch_live(scheduled)
     train_ids = trains.map(&.id)
   end
 end
@@ -54,7 +54,7 @@ before_all do |env|
   raise "Client unauthorized" if auth != ENV["AUTH"]
 end
 
-# realtime trains
+# live trains
 get "/trains" do
   trains.to_json
 end

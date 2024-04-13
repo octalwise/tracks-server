@@ -1,7 +1,7 @@
 module Tracks
   module Data
-    # realtime trains
-    module Realtime
+    # live trains
+    module Live
       class Data
         include JSON::Serializable
 
@@ -68,7 +68,7 @@ module Tracks
       class Trip
         include JSON::Serializable
 
-        @[JSON::Field(key: "TripId", converter: Tracks::Data::Realtime::IntConverter)]
+        @[JSON::Field(key: "TripId", converter: Tracks::Data::Live::IntConverter)]
         property id : Int32
 
         @[JSON::Field(key: "RouteId")]
@@ -81,7 +81,7 @@ module Tracks
       class Stop
         include JSON::Serializable
 
-        @[JSON::Field(key: "StopId", converter: Tracks::Data::Realtime::IntConverter)]
+        @[JSON::Field(key: "StopId", converter: Tracks::Data::Live::IntConverter)]
         property station : Int32
 
         @[JSON::Field(key: "Arrival", root: "Time", converter: Time::EpochConverter)]
@@ -108,7 +108,7 @@ module Tracks
       end
 
       # fetch trains from api
-      def self.fetch_realtime(scheduled : Array(Tracks::Train)) : Array(Tracks::Train)
+      def self.fetch_live(scheduled : Array(Tracks::Train)) : Array(Tracks::Train)
         # url params
         params = URI::Params.encode({
           api_key: ENV["API_KEY"],
