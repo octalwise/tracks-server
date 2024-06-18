@@ -31,10 +31,7 @@ module Tracks
         @stops  = [] of ScheduledStop
 
         # fetch data
-        html =
-          HTTP::Client.get(
-            "https://www.caltrain.com/?active_tab=route_explorer_tab"
-          ).body
+        html = HTTP::Client.get("https://www.caltrain.com").body
 
         # document parser
         document = Lexbor::Parser.new(html)
