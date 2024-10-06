@@ -12,8 +12,8 @@ module Tracks
     # direction
     property direction : String
 
-    # line
-    property line : String
+    # route
+    property route : String
 
     # current location
     @[JSON::Field(emit_null: true)]
@@ -22,7 +22,7 @@ module Tracks
     # all stops
     property stops : Array(Stop)
 
-    def initialize(@id, @live, @direction, @line, @location, @stops)
+    def initialize(@id, @live, @direction, @route, @location, @stops)
     end
   end
 

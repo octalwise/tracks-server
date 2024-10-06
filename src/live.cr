@@ -58,7 +58,7 @@ module Tracks
             @trip.id,
             true,
             @trip.direction == 0 ? "N" : "S",
-            @trip.line,
+            @trip.route,
             stop.scheduled ? stop.station : nil,
             index != 0 ? scheduled.stops[..index - 1] + stops : stops
           )
@@ -72,7 +72,7 @@ module Tracks
         property id : Int32
 
         @[JSON::Field(key: "RouteId")]
-        property line : String
+        property route : String
 
         @[JSON::Field(key: "DirectionId")]
         property direction : Int32

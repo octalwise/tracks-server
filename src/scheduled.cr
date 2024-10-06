@@ -9,9 +9,9 @@ module Tracks
       class ScheduledTrain
         property id        : Int32
         property direction : String
-        property line      : String
+        property route     : String
 
-        def initialize(@id, @direction, @line)
+        def initialize(@id, @direction, @route)
         end
       end
 
@@ -47,10 +47,10 @@ module Tracks
             "tr:first-child td.schedule-trip-header[data-service-type=#{day_type}]"
           ).each do |header|
             train = header["data-trip-id"].to_i
-            line  = header["data-route-id"]
+            route = header["data-route-id"]
 
             # add scheduled train
-            @trains << ScheduledTrain.new(train, direction, line)
+            @trains << ScheduledTrain.new(train, direction, route)
           end
 
           # scheduled stops
@@ -130,7 +130,7 @@ module Tracks
             train.id,
             false,
             train.direction,
-            train.line,
+            train.route,
             location,
             train_stops.map do |stop|
               Stop.new(stop.station, stop.time, stop.time)
