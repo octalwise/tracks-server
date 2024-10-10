@@ -16,12 +16,15 @@ spawn do
   loop do
     sleep 90
 
-    # fetch scheduled trains
-    scheduled = schedule.fetch_trains
+    begin
+      # fetch scheduled trains
+      scheduled = schedule.fetch_trains
 
-    # fetch live trains
-    trains    = Tracks::Data::Live.fetch_live(scheduled)
-    train_ids = trains.map(&.id)
+      # fetch live trains
+      trains    = Tracks::Data::Live.fetch_live(scheduled)
+      train_ids = trains.map(&.id)
+    rescue
+    end
   end
 end
 
@@ -30,8 +33,11 @@ spawn do
   loop do
     sleep 180
 
-    # fetch alerts
-    alerts = Tracks::Data::Alerts.fetch_alerts
+    begin
+      # fetch alerts
+      alerts = Tracks::Data::Alerts.fetch_alerts
+    rescue
+    end
   end
 end
 
@@ -40,8 +46,11 @@ spawn do
   loop do
     sleep 86_400
 
-    # update scheduled doc
-    schedule = Tracks::Data::Scheduled.new
+    begin
+      # update scheduled doc
+      schedule = Tracks::Data::Scheduled.new
+    rescue
+    end
   end
 end
 
