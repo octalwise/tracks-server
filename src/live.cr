@@ -53,12 +53,16 @@ module Tracks
           index = [first_index - 1, 0].max
           stop  = scheduled.stops[index]
 
+          # remove local suffix
+          local = @trip.route == "Local Weekday" || @trip.route == "Local Weekend"
+          route = local ? "Local" : @trip.route
+
           # create train
           Tracks::Train.new(
             @trip.id,
             true,
             @trip.direction == 0 ? "N" : "S",
-            @trip.route,
+            route,
             stop.scheduled ? stop.station : nil,
             index != 0 ? scheduled.stops[..index - 1] + stops : stops
           )
