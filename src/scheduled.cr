@@ -75,8 +75,8 @@ module Tracks
         end
       end
 
-      # fetch scheduled trains
-      def fetch_trains : Array(Train)
+      # get scheduled trains
+      def get_scheduled : Array(Train)
         now = Time.local(Time::Location.fixed(-3600 * 7))
 
         stops =

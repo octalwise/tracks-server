@@ -1,8 +1,8 @@
 require "./lib"
 
-# fetch scheduled trains
+# get scheduled trains
 schedule  = Tracks::Data::Scheduled.new
-scheduled = schedule.fetch_trains
+scheduled = schedule.get_scheduled
 
 # fetch live trains
 trains = Tracks::Data::Live.fetch_live(scheduled)
@@ -16,8 +16,8 @@ spawn do
     sleep 90
 
     begin
-      # fetch scheduled trains
-      scheduled = schedule.fetch_trains
+      # get scheduled trains
+      scheduled = schedule.get_scheduled
 
       # fetch live trains
       trains = Tracks::Data::Live.fetch_live(scheduled)
