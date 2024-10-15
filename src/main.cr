@@ -1,14 +1,14 @@
 require "./lib"
 
 # get scheduled trains
-schedule  = Tracks::Data::Scheduled.new
+schedule  = Tracks::Scheduled.new
 scheduled = schedule.get_scheduled
 
 # fetch live trains
-trains = Tracks::Data::Live.fetch_live(scheduled)
+trains = Tracks::Live.fetch_live(scheduled)
 
 # fetch alerts
-alerts = Tracks::Data::Alerts.fetch_alerts
+alerts = Tracks::Alerts.fetch_alerts
 
 # every 90 secs
 spawn do
@@ -20,7 +20,7 @@ spawn do
       scheduled = schedule.get_scheduled
 
       # fetch live trains
-      trains = Tracks::Data::Live.fetch_live(scheduled)
+      trains = Tracks::Live.fetch_live(scheduled)
     rescue
     end
   end
@@ -33,7 +33,7 @@ spawn do
 
     begin
       # fetch alerts
-      alerts = Tracks::Data::Alerts.fetch_alerts
+      alerts = Tracks::Alerts.fetch_alerts
     rescue
     end
   end
@@ -46,7 +46,7 @@ spawn do
 
     begin
       # update scheduled doc
-      schedule = Tracks::Data::Scheduled.new
+      schedule = Tracks::Scheduled.new
     rescue
     end
   end
