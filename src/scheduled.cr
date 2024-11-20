@@ -48,6 +48,9 @@ module Tracks
           train = header["data-trip-id"].to_i
           route = header["data-route-id"]
 
+          # remove local suffix
+          route = "Local" if route == "Local Weekday" || route == "Local Weekend"
+
           # add scheduled train
           @trains << ScheduledTrain.new(train, direction, route)
         end
