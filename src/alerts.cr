@@ -5,17 +5,17 @@ module Tracks
       include JSON::Serializable
 
       @[JSON::Field(key: "Alert")]
-      property alert : AlertInfo
+      getter alert : AlertInfo
     end
 
     class AlertInfo
       include JSON::Serializable
 
       @[JSON::Field(key: "HeaderText", root: "Translation")]
-      property header_text : Array(Info)
+      getter header_text : Array(Info)
 
       @[JSON::Field(key: "DescriptionText", root: "Translation")]
-      property description_text : Array(Info)
+      getter description_text : Array(Info)
 
       def to_normal : Tracks::Alert
         # english header
@@ -48,10 +48,10 @@ module Tracks
       include JSON::Serializable
 
       @[JSON::Field(key: "Text")]
-      property text : String
+      getter text : String
 
       @[JSON::Field(key: "Language")]
-      property language : String
+      getter language : String
     end
 
     # fetch alerts from api

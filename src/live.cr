@@ -5,24 +5,24 @@ module Tracks
       include JSON::Serializable
 
       @[JSON::Field(key: "Entities")]
-      property vehicles : Array(Vehicle)
+      getter vehicles : Array(Vehicle)
     end
 
     class Vehicle
       include JSON::Serializable
 
       @[JSON::Field(key: "TripUpdate")]
-      property trip_update : TripUpdate
+      getter trip_update : TripUpdate
     end
 
     class TripUpdate
       include JSON::Serializable
 
       @[JSON::Field(key: "Trip")]
-      property trip : Trip
+      getter trip : Trip
 
       @[JSON::Field(key: "StopTimeUpdates")]
-      property stops : Array(Stop)
+      getter stops : Array(Stop)
 
       # convert trip update
       def to_normal(scheduled : Tracks::Train) : Tracks::Train
@@ -72,26 +72,26 @@ module Tracks
       include JSON::Serializable
 
       @[JSON::Field(key: "TripId", converter: Tracks::Live::IntConverter)]
-      property id : Int32
+      getter id : Int32
 
       @[JSON::Field(key: "RouteId")]
-      property route : String
+      getter route : String
 
       @[JSON::Field(key: "DirectionId")]
-      property direction : Int32
+      getter direction : Int32
     end
 
     class Stop
       include JSON::Serializable
 
       @[JSON::Field(key: "StopId", converter: Tracks::Live::IntConverter)]
-      property station : Int32
+      getter station : Int32
 
       @[JSON::Field(key: "Arrival", root: "Time", converter: Time::EpochConverter)]
-      property arrival : Time?
+      getter arrival : Time?
 
       @[JSON::Field(key: "Departure", root: "Time", converter: Time::EpochConverter)]
-      property departure : Time?
+      getter departure : Time?
 
       # convert stop
       def to_normal(scheduled : Tracks::Stop) : Tracks::Stop

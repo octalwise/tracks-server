@@ -4,23 +4,23 @@ module Tracks
     include JSON::Serializable
 
     # train id
-    property id : Int32
+    getter id : Int32
 
     # is live
-    property live : Bool
+    getter live : Bool
 
     # direction
-    property direction : String
+    getter direction : String
 
     # route
-    property route : String
+    getter route : String
 
     # current location
     @[JSON::Field(emit_null: true)]
-    property location : Int32?
+    getter location : Int32?
 
     # all stops
-    property stops : Array(Stop)
+    getter stops : Array(Stop)
 
     def initialize(@id, @live, @direction, @route, @location, @stops)
     end
@@ -31,15 +31,15 @@ module Tracks
     include JSON::Serializable
 
     # station id
-    property station : Int32
+    getter station : Int32
 
     # scheduled time
     @[JSON::Field(converter: Time::EpochConverter)]
-    property scheduled : Time
+    getter scheduled : Time
 
     # expected time
     @[JSON::Field(converter: Time::EpochConverter)]
-    property expected : Time
+    getter expected : Time
 
     def initialize(@station, @scheduled, @expected)
     end
@@ -50,10 +50,10 @@ module Tracks
     include JSON::Serializable
 
     # header text
-    property header : String
+    getter header : String
 
     # optional description
-    property description : String?
+    getter description : String?
 
     def initialize(@header, @description)
     end

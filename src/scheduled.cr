@@ -1,14 +1,14 @@
 module Tracks
   # scheduled trains
   class Scheduled
-    property trains : Array(ScheduledTrain)
-    property stops  : Array(ScheduledStop)
+    @trains : Array(ScheduledTrain)
+    @stops  : Array(ScheduledStop)
 
     # scheduled train
     class ScheduledTrain
-      property id        : Int32
-      property direction : String
-      property route     : String
+      getter id        : Int32
+      getter direction : String
+      getter route     : String
 
       def initialize(@id, @direction, @route)
       end
@@ -16,9 +16,9 @@ module Tracks
 
     # scheduled train stop
     class ScheduledStop
-      property station : Int32
+      getter   station : Int32
       property time    : Time
-      property train   : Int32
+      getter   train   : Int32
 
       def initialize(@station, @time, @train)
       end
