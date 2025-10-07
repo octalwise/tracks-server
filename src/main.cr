@@ -1,13 +1,10 @@
 require "./lib"
 
-# get scheduled trains
 schedule  = Tracks::Scheduled.new
 scheduled = schedule.get_scheduled
 
-# fetch live trains
 trains = Tracks::Live.fetch_live(scheduled)
 
-# fetch alerts
 alerts = Tracks::Alerts.fetch_alerts
 
 # every 90 secs
@@ -16,12 +13,9 @@ spawn do
     sleep 90
 
     begin
-      # get scheduled trains
       scheduled = schedule.get_scheduled
-
-      # fetch live trains
       trains = Tracks::Live.fetch_live(scheduled)
-    rescue
+    rescue err
     end
   end
 end
@@ -32,47 +26,48 @@ spawn do
     sleep 180
 
     begin
-      # fetch alerts
       alerts = Tracks::Alerts.fetch_alerts
-    rescue
+    rescue err
     end
   end
 end
 
-# every 24 hours
+# every 5am
 spawn do
   loop do
-    sleep 86_400
+    loc = Time::Location.load("America/Los_Angeles")
+    now = Time.local(loc)
+
+    next_run = Time.local(now.year, now.month, now.day, 5, 1, 0, location: loc)
+
+    if now >= next_run
+      date = now + 1.day
+      next_run = Time.local(date.year, date.month, date.day, 5, 1, 0, location: loc)
+    end
+
+    sleep next_run - now
 
     begin
-      # update scheduled doc
       schedule = Tracks::Scheduled.new
-    rescue
+    rescue err
     end
   end
 end
 
 before_all do |env|
-  # json content type
   env.response.content_type = "application/json"
 
-  # require auth token
   auth = env.request.headers["Authorization"]?
   raise "Client unauthorized" if auth != ENV["AUTH"]
 end
 
-# live trains
 get "/trains" do
   trains.to_json
 end
 
-# alerts
 get "/alerts" do
   alerts.to_json
 end
 
-# production env
 Kemal.config.env = "production"
-
-# run server
 Kemal.run

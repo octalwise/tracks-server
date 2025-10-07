@@ -1,61 +1,48 @@
 module Tracks
-  # scheduled trains
   class Scheduled
     @trains : Array(ScheduledTrain)
     @stops  : Array(ScheduledStop)
 
-    # scheduled train
     class ScheduledTrain
-      getter id        : Int32
+      getter id : Int32
       getter direction : String
-      getter route     : String
+      getter route : String
 
       def initialize(@id, @direction, @route)
       end
     end
 
-    # scheduled train stop
     class ScheduledStop
-      getter   station : Int32
-      property time    : Time
-      getter   train   : Int32
+      getter station : Int32
+      property time : Time
+      getter train : Int32
 
       def initialize(@station, @time, @train)
       end
     end
 
-    # initialize scheduler
     def initialize
       @trains = [] of ScheduledTrain
-      @stops  = [] of ScheduledStop
+      @stops = [] of ScheduledStop
 
-      # fetch data
       html = HTTP::Client.get("https://www.caltrain.com").body
 
-      # document parser
       document = Lexbor::Parser.new(html)
-
-      now = Time.local(Time::Location.load("America/Los_Angeles"))
-      day_type = now.saturday? || now.sunday? ? "weekend" : "weekday"
 
       document.css("table.caltrain_schedule tbody").each do |table|
         direction = table.parent.not_nil!["data-direction"] == "northbound" ? "N" : "S"
 
-        # scheduled trains
         table.css(
-          "tr:first-child td.schedule-trip-header[data-service-type=#{day_type}]"
+          "tr:first-child td.schedule-trip-header"
         ).each do |header|
           train = header["data-trip-id"].to_i
-          route = header["data-route-id"]
 
-          # remove local suffix
+          route = header["data-route-id"]
           route = "Local" if route == "Local Weekday" || route == "Local Weekend"
 
-          # add scheduled train
           @trains << ScheduledTrain.new(train, direction, route)
         end
 
-        # scheduled stops
         table.css("tr[data-stop-id]").flat_map do |row|
           stop = row["data-stop-id"].to_i
 
@@ -70,14 +57,12 @@ module Tracks
 
             train = timepoint["data-trip-id"].to_i
 
-            # add scheduled stop
             @stops << ScheduledStop.new(stop, time, train)
           end
         end
       end
     end
 
-    # get scheduled trains
     def get_scheduled : Array(Train)
       now = Time.local(Time::Location.load("America/Los_Angeles"))
 
@@ -85,7 +70,6 @@ module Tracks
         @stops
           .map do |stop|
             stop.tap do |stop|
-              # stop time
               stop.time =
                 Time.local(
                   now.year,
@@ -114,7 +98,6 @@ module Tracks
 
         first, last = train_stops.map(&.time).minmax
 
-        # find location
         location =
           if first <= now && last >= now
             stop =
@@ -127,7 +110,6 @@ module Tracks
             end
           end
 
-        # create train
         Train.new(
           train.id,
           false,

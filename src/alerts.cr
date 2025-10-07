@@ -1,5 +1,4 @@
 module Tracks
-  # alerts
   module Alerts
     class Alert
       include JSON::Serializable
@@ -18,7 +17,6 @@ module Tracks
       getter description_text : Array(Info)
 
       def to_normal : Tracks::Alert
-        # english header
         header =
           @header_text
             .find { |info| info.language == "en" }
@@ -26,7 +24,6 @@ module Tracks
             .text
             .strip
 
-        # english description
         description =
           @description_text
             .find { |info| info.language == "en" }
@@ -35,10 +32,8 @@ module Tracks
             .strip
 
         if !header.empty?
-          # header and description
           Tracks::Alert.new(header, description)
         else
-          # only description
           Tracks::Alert.new(description, nil)
         end
       end
@@ -54,14 +49,11 @@ module Tracks
       getter language : String
     end
 
-    # fetch alerts from api
     def self.fetch_alerts : Array(Tracks::Alert)
-      # fetch data
       res = HTTP::Client.get(
         "https://www.caltrain.com/gtfs/api/v1/servicealerts/3655"
       ).body
 
-      # convert data
       Array(Alert)
         .from_json(res)
         .map(&.alert)

@@ -1,5 +1,4 @@
 module Tracks
-  # live trains
   module Live
     class Data
       include JSON::Serializable
@@ -24,10 +23,8 @@ module Tracks
       @[JSON::Field(key: "StopTimeUpdates")]
       getter stops : Array(Stop)
 
-      # convert trip update
       def to_normal(scheduled : Tracks::Train) : Tracks::Train
         stops = @stops.map do |stop|
-          # find scheduled stop
           scheduled_stop =
             scheduled
               .stops
@@ -36,11 +33,9 @@ module Tracks
               end
               .not_nil!
 
-          # convert stop
           stop.to_normal(scheduled_stop)
         end
 
-        # location index
         first_index =
           scheduled
             .stops
@@ -48,22 +43,19 @@ module Tracks
             .index(@stops.first.station)
             .not_nil!
 
-        # current stop
         index = [first_index - 1, 0].max
-        stop  = scheduled.stops[index]
+        stop = scheduled.stops[index]
 
-        # remove local suffix
         local = @trip.route == "Local Weekday" || @trip.route == "Local Weekend"
         route = local ? "Local" : @trip.route
 
-        # create train
         Tracks::Train.new(
           @trip.id,
           true,
           @trip.direction == 0 ? "N" : "S",
           route,
           stop.scheduled ? stop.station : nil,
-          index != 0 ? scheduled.stops[..index - 1] + stops : stops
+          index != 0 ? scheduled.stops[..index] + stops : stops
         )
       end
     end
@@ -93,7 +85,6 @@ module Tracks
       @[JSON::Field(key: "Departure", root: "Time", converter: Time::EpochConverter)]
       getter departure : Time?
 
-      # convert stop
       def to_normal(scheduled : Tracks::Stop) : Tracks::Stop
         Tracks::Stop.new(
           @station,
@@ -103,48 +94,39 @@ module Tracks
       end
     end
 
-    # convert string to int
     class IntConverter
       def self.from_json(pull : JSON::PullParser) : Int32
         pull.read_string.to_i
       end
     end
 
-    # fetch trains from api
     def self.fetch_live(scheduled : Array(Tracks::Train)) : Array(Tracks::Train)
-      # url params
       params = URI::Params.encode({
         api_key: ENV["API_KEY"],
-        agency:  "CT",
-        format:  "json"
+        agency: "CT",
+        format: "json"
       })
 
-      # trip updates url
       url = URI.new(
         "https", "api.511.org",
         path: "transit/tripupdates",
         query: params
       )
 
-      # uncompress data
       client = HTTP::Client.new(url)
       client.compress = true
 
-      # fetch data
       res = client.get(url.to_s).body[1..-1]
 
-      # convert data
       Data.from_json(res)
         .vehicles
         .map(&.trip_update)
         .map do |update|
-          # find scheduled train
           train = scheduled.find do |train|
             train.id == update.trip.id
           end
 
           if train
-            # convert train
             update.to_normal(train)
           end
         end

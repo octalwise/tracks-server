@@ -4,6 +4,6 @@
 # shards
 *.dwarf
 shard.lock
-/lib/
-/bin/
-/.shards/
+lib/
+bin/
+.shards/
