@@ -59,6 +59,9 @@ module Tracks
         index = [first_index - 1, 0].max
         stop = scheduled.stops[index]
 
+        now = Time.local(Time::Location.load("America/Los_Angeles"))
+        location = stop.expected <= now ? stop.station : nil
+
         local = @trip.route == "Local Weekday" || @trip.route == "Local Weekend"
         route = local ? "Local" : @trip.route
 
@@ -67,7 +70,7 @@ module Tracks
           true,
           @trip.direction == 0 ? "N" : "S",
           route,
-          stop.scheduled ? stop.station : nil,
+          location,
           index != 0 ? scheduled.stops[..index] + stops : stops
         )
       end

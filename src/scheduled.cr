@@ -105,9 +105,7 @@ module Tracks
                 .sort { |a, b| b.time <=> a.time }
                 .find { |stop| stop.time <= now }
 
-            if stop
-              stop.station
-            end
+            stop.try(&.station)
           end
 
         Train.new(
