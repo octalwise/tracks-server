@@ -1,7 +1,7 @@
 module Tracks
   class Scheduled
     @trains : Array(ScheduledTrain)
-    @stops  : Array(ScheduledStop)
+    @stops : Array(ScheduledStop)
 
     class ScheduledTrain
       getter id : Int32
