@@ -36,6 +36,19 @@ module Tracks
           stop.to_normal(scheduled_stop)
         end
 
+        sched_last = scheduled.stops.last
+        live_last = stops.last
+
+        if sched_last.station != live_last.station
+          stops.push(
+            Tracks::Stop.new(
+              sched_last.station,
+              sched_last.scheduled,
+              sched_last.scheduled + (live_last.expected - live_last.scheduled)
+            )
+          )
+        end
+
         first_index =
           scheduled
             .stops
