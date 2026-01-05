@@ -4,8 +4,10 @@ module Tracks
 
     getter id : Int32
     getter live : Bool
+
     getter direction : String
     getter route : String
+    getter service : String
 
     @[JSON::Field(emit_null: true)]
     getter location : Int32?
@@ -13,6 +15,7 @@ module Tracks
     getter stops : Array(Stop)
 
     def initialize(@id, @live, @direction, @route, @location, @stops)
+      @service = "normal"
     end
   end
 
