@@ -82,7 +82,7 @@ module Tracks
 
               cutoff = 3
 
-              if now.hour <= cutoff && stop.time.hour >= cutoff
+              if now.hour < cutoff && stop.time.hour >= cutoff
                 # previous day
                 stop.time -= 1.days
               elsif now.hour >= cutoff && stop.time.hour < cutoff
