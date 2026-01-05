@@ -38,11 +38,11 @@ spawn do
     loc = Time::Location.load("America/Los_Angeles")
     now = Time.local(loc)
 
-    next_run = Time.local(now.year, now.month, now.day, 3, 0, 1, location: loc)
+    next_run = Time.local(now.year, now.month, now.day, 3, 0, 0, location: loc)
 
     if now >= next_run
       date = now + 1.day
-      next_run = Time.local(date.year, date.month, date.day, 3, 0, 1, location: loc)
+      next_run = Time.local(date.year, date.month, date.day, 3, 0, 0, location: loc)
     end
 
     sleep next_run - now
