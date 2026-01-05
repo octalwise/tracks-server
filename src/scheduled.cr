@@ -80,13 +80,13 @@ module Tracks
                   location: Time::Location.load("America/Los_Angeles")
                 )
 
-              # previous day
-              if now.hour <= 4 && stop.time.hour >= 4
-                stop.time -= 1.days
-              end
+              cutoff = 3
 
-              # next day
-              if now.hour >= 4 && stop.time.hour < 4
+              if now.hour <= cutoff && stop.time.hour >= cutoff
+                # previous day
+                stop.time -= 1.days
+              elsif now.hour >= cutoff && stop.time.hour < cutoff
+                # next day
                 stop.time += 1.days
               end
             end
