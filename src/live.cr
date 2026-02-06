@@ -40,6 +40,7 @@ module Tracks
         live_last = stops.last
 
         if sched_last.station != live_last.station
+          # add missing last station
           stops.push(
             Tracks::Stop.new(
               sched_last.station,
@@ -49,15 +50,32 @@ module Tracks
           )
         end
 
-        first_index =
+        next_stop = stops.first
+        next_idx =
           scheduled
             .stops
             .map(&.station)
-            .index(@stops.first.station)
+            .index(stops.first.station)
             .not_nil!
 
-        index = [first_index - 1, 0].max
-        stop = scheduled.stops[index]
+        prev_idx = next_idx > 0 ? next_idx - 1 : 0
+        prev_stop = scheduled.stops[prev_idx]
+
+        idx1 = Tracks::STATIONS.index { |s| s.contains(prev_stop.station) }.not_nil!
+        idx2 = Tracks::STATIONS.index { |s| s.contains(next_stop.station) }.not_nil!
+
+        now = Time.local(Time::Location.load("America/Los_Angeles"))
+
+        location =
+          if idx1 == idx2
+            Tracks::STATIONS[idx1]
+          else
+            dt = next_stop.expected - prev_stop.expected
+            mix = dt.zero? ? 0.0 : (now - prev_stop.expected) / dt
+
+            # mix location
+            Tracks::STATIONS[(mix.clamp(0, 1) * (idx2 - idx1)).floor.to_i + idx1]
+          end
 
         now = Time.local(Time::Location.load("America/Los_Angeles"))
         location = stop.expected <= now ? stop.station : nil
@@ -65,13 +83,16 @@ module Tracks
         local = @trip.route == "Local Weekday" || @trip.route == "Local Weekend"
         route = local ? "Local" : @trip.route
 
+        direction = @trip.direction == 0 ? "N" : "S"
+
         Tracks::Train.new(
           @trip.id,
           true,
-          @trip.direction == 0 ? "N" : "S",
+          direction,
           route,
-          location,
-          index != 0 ? scheduled.stops[..index] + stops : stops
+          location.side(direction),
+          # add previous scheduled stops
+          next_idx != 0 ? scheduled.stops[..next_idx] + stops : stops,
         )
       end
     end

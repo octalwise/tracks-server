@@ -45,4 +45,22 @@ module Tracks
     def initialize(@header, @description)
     end
   end
+
+  STATIONS = Array(Station).from_json({{ read_file("src/stations.json") }})
+
+  class Station
+    include JSON::Serializable
+
+    getter north : Int32
+    getter south : Int32
+    getter name : String
+
+    def contains(id : Int32) : Bool
+      @north == id || @south == id
+    end
+
+    def side(direction : String) : Int32
+      direction == "N" ? @north : @south
+    end
+  end
 end

@@ -30,11 +30,6 @@
     "name": "Millbrae"
   },
   {
-    "north": 70071,
-    "south": 70072,
-    "name": "Broadway"
-  },
-  {
     "north": 70081,
     "south": 70082,
     "name": "Burlingame"
