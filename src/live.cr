@@ -55,7 +55,7 @@ module Tracks
           scheduled
             .stops
             .map(&.station)
-            .index(stops.first.station)
+            .index(next_stop.station)
             .not_nil!
 
         prev_idx = next_idx > 0 ? next_idx - 1 : 0
@@ -67,8 +67,12 @@ module Tracks
         now = Time.local(Time::Location.load("America/Los_Angeles"))
 
         location =
-          if idx1 == idx2
+          if prev_stop.expected > now
+            nil
+          elsif idx1 == idx2
             Tracks::STATIONS[idx1]
+          elsif now >= next_stop.expected - 20.seconds
+            Tracks::STATIONS[idx2]
           else
             dt = next_stop.expected - prev_stop.expected
             mix = dt.zero? ? 0.0 : (now - prev_stop.expected) / dt
@@ -76,9 +80,6 @@ module Tracks
             # mix location
             Tracks::STATIONS[(mix.clamp(0, 1) * (idx2 - idx1)).floor.to_i + idx1]
           end
-
-        now = Time.local(Time::Location.load("America/Los_Angeles"))
-        location = stop.expected <= now ? stop.station : nil
 
         local = @trip.route == "Local Weekday" || @trip.route == "Local Weekend"
         route = local ? "Local" : @trip.route
@@ -90,9 +91,9 @@ module Tracks
           true,
           direction,
           route,
-          location.side(direction),
+          location.try &.side(direction),
           # add previous scheduled stops
-          next_idx != 0 ? scheduled.stops[..next_idx] + stops : stops,
+          prev_idx != 0 ? scheduled.stops[..prev_idx] + stops : stops,
         )
       end
     end

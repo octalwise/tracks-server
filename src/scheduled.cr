@@ -83,10 +83,8 @@ module Tracks
               cutoff = 3
 
               if now.hour < cutoff && stop.time.hour >= cutoff
-                # previous day
                 stop.time -= 1.days
               elsif now.hour >= cutoff && stop.time.hour < cutoff
-                # next day
                 stop.time += 1.days
               end
             end
@@ -94,18 +92,44 @@ module Tracks
 
       @trains.map do |train|
         train_stops =
-          stops.select { |stop| stop.train == train.id }
+          stops
+            .select { |stop| stop.train == train.id }
+            .sort { |a, b| a.time <=> b.time }
 
         first, last = train_stops.map(&.time).minmax
 
         location =
           if first <= now && last >= now
-            stop =
-              train_stops
-                .sort { |a, b| b.time <=> a.time }
-                .find { |stop| stop.time <= now }
+            next_stop = train_stops.find { |s| s.time > now }.not_nil!
 
-            stop.try(&.station)
+            next_idx =
+              train_stops
+                .map(&.station)
+                .index(next_stop.station)
+                .not_nil!
+
+            prev_idx = next_idx > 0 ? next_idx - 1 : 0
+            prev_stop = train_stops[prev_idx]
+
+            idx1 = Tracks::STATIONS.index { |s| s.contains(prev_stop.station) }.not_nil!
+            idx2 = Tracks::STATIONS.index { |s| s.contains(next_stop.station) }.not_nil!
+
+            stations =
+              if prev_stop.time > now
+                nil
+              elsif idx1 == idx2
+                Tracks::STATIONS[idx1]
+              elsif now >= next_stop.time - 20.seconds
+                Tracks::STATIONS[idx2]
+              else
+                dt = next_stop.time - prev_stop.time
+                mix = dt.zero? ? 0.0 : (now - prev_stop.time) / dt
+
+                # mix location
+                Tracks::STATIONS[(mix.clamp(0, 1) * (idx2 - idx1)).floor.to_i + idx1]
+              end
+
+            stations.try &.side(train.direction)
           end
 
         Train.new(

@@ -10,7 +10,7 @@ alerts = Tracks::Alerts.fetch_alerts
 # every 90 secs
 spawn do
   loop do
-    sleep Time::Span.new(seconds: 90)
+    sleep 60.seconds
 
     begin
       scheduled = schedule.get_scheduled
@@ -23,7 +23,7 @@ end
 # every 180 secs
 spawn do
   loop do
-    sleep Time::Span.new(seconds: 180)
+    sleep 180.seconds
 
     begin
       alerts = Tracks::Alerts.fetch_alerts
