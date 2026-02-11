@@ -71,6 +71,8 @@ module Tracks
             nil
           elsif idx1 == idx2
             Tracks::STATIONS[idx1]
+          elsif idx2 == Tracks::STATIONS.size - 1 && now > next_stop.expected + 20.seconds
+            nil
           elsif now >= next_stop.expected - 20.seconds
             Tracks::STATIONS[idx2]
           else
