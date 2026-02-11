@@ -78,7 +78,8 @@ module Tracks
             mix = dt.zero? ? 0.0 : (now - prev_stop.expected) / dt
 
             # mix location
-            Tracks::STATIONS[(mix.clamp(0, 1) * (idx2 - idx1)).floor.to_i + idx1]
+            offset = (mix.clamp(0, 1) * (idx2 - idx1)).floor.to_i
+            Tracks::STATIONS[offset + idx1]
           end
 
         local = @trip.route == "Local Weekday" || @trip.route == "Local Weekend"
