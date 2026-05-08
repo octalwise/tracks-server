@@ -25,15 +25,13 @@ module Tracks
 
       def to_normal(scheduled : Tracks::Train) : Tracks::Train
         stops = @stops.map do |stop|
-          scheduled_stop =
+          sched_stop =
             scheduled
               .stops
-              .find do |scheduled_stop|
-                scheduled_stop.station == stop.station
-              end
+              .find { |sched| sched.station == stop.station }
               .not_nil!
 
-          stop.to_normal(scheduled_stop)
+          stop.to_normal(sched_stop)
         end
 
         sched_last = scheduled.stops.last
@@ -95,8 +93,10 @@ module Tracks
           direction,
           route,
           location.try &.side(direction),
-          # add previous scheduled stops
-          prev_idx != 0 ? scheduled.stops[..prev_idx] + stops : stops,
+          scheduled.stops.map do |sched|
+            stop = stops.find { |stop| stop.station == sched.station }
+            stop || sched
+          end
         )
       end
     end
@@ -163,9 +163,7 @@ module Tracks
         .vehicles
         .map(&.trip_update)
         .map do |update|
-          train = scheduled.find do |train|
-            train.id == update.trip.id
-          end
+          train = scheduled.find { |train| train.id == update.trip.id }
 
           if train
             update.to_normal(train)
