@@ -48,21 +48,16 @@ module Tracks
           )
         end
 
-        next_stop = stops.first
-        next_idx =
-          scheduled
-            .stops
-            .map(&.station)
-            .index(next_stop.station)
-            .not_nil!
+        now = Time.local(Time::Location.load("America/Los_Angeles"))
+
+        next_idx = stops.index { |s| s.expected > now } || (stops.size - 1)
+        next_stop = stops[next_idx]
 
         prev_idx = next_idx > 0 ? next_idx - 1 : 0
         prev_stop = scheduled.stops[prev_idx]
 
         idx1 = Tracks::STATIONS.index { |s| s.contains(prev_stop.station) }.not_nil!
         idx2 = Tracks::STATIONS.index { |s| s.contains(next_stop.station) }.not_nil!
-
-        now = Time.local(Time::Location.load("America/Los_Angeles"))
 
         location =
           if prev_stop.expected > now
@@ -157,7 +152,7 @@ module Tracks
       client = HTTP::Client.new(url)
       client.compress = true
 
-      res = client.get(url.to_s).body[1..-1]
+      res = client.get(url.to_s).body
 
       Data.from_json(res)
         .vehicles

@@ -49,6 +49,7 @@ spawn do
 
     begin
       schedule = Tracks::Scheduled.new
+      scheduled = schedule.get_scheduled
     rescue err
     end
   end

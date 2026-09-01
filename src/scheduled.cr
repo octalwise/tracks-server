@@ -118,7 +118,6 @@ module Tracks
       end
 
       next_stop = stops.find { |s| s.time > now }.not_nil!
-
       next_idx =
         stops
           .map(&.station)
