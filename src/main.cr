@@ -7,7 +7,10 @@ trains = Tracks::Live.fetch_live(scheduled)
 
 alerts = Tracks::Alerts.fetch_alerts
 
-# every 90 secs
+index = HTTP::Client.get("https://www.caltrain.com").body
+holiday = HTTP::Client.get("https://www.caltrain.com/schedules/holiday-service-schedules").body
+
+# every 60 secs
 spawn do
   loop do
     sleep 60.seconds
@@ -52,22 +55,51 @@ spawn do
       scheduled = schedule.get_scheduled
     rescue err
     end
+
+    begin
+      index = HTTP::Client.get("https://www.caltrain.com").body
+    rescue err
+    end
+
+    begin
+      holiday = HTTP::Client.get("https://www.caltrain.com/schedules/holiday-service-schedules").body
+    rescue err
+    end
   end
 end
 
 before_all do |env|
-  env.response.content_type = "application/json"
+  env.response.headers["Access-Control-Allow-Origin"] = "*"
+  env.response.headers["Access-Control-Allow-Headers"] = "Authorization"
+
+  next if env.request.method == "OPTIONS"
 
   auth = env.request.headers["Authorization"]?
   raise "Client unauthorized" if auth != ENV["AUTH"]
 end
 
-get "/trains" do
+options "/*" do |env|
+  ""
+end
+
+get "/trains" do |env|
+  env.response.content_type = "application/json"
   trains.to_json
 end
 
-get "/alerts" do
+get "/alerts" do |env|
+  env.response.content_type = "application/json"
   alerts.to_json
+end
+
+get "/caltrain/index" do |env|
+  env.response.content_type = "text/html; charset=UTF-8"
+  index
+end
+
+get "/caltrain/holiday" do |env|
+  env.response.content_type = "text/html; charset=UTF-8"
+  holiday
 end
 
 Kemal.config.env = "production"
