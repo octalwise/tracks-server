@@ -113,9 +113,7 @@ module Tracks
       stops = stops.sort { |a, b| a.time <=> b.time }
       first, last = stops.map(&.time).minmax
 
-      if first > now || last < now
-        return nil
-      end
+      return nil if first > now || last < now
 
       next_stop = stops.find { |s| s.time > now }.not_nil!
       next_idx =

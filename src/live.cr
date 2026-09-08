@@ -23,7 +23,7 @@ module Tracks
       @[JSON::Field(key: "StopTimeUpdates")]
       getter stops : Array(Stop)
 
-      def to_normal(scheduled : Tracks::Train) : Tracks::Train
+      def to_normal(scheduled : Tracks::Train, old : Tracks::Train?) : Tracks::Train
         stops = @stops.map do |stop|
           sched_stop =
             scheduled
@@ -90,7 +90,9 @@ module Tracks
           location.try &.side(direction),
           scheduled.stops.map do |sched|
             stop = stops.find { |stop| stop.station == sched.station }
-            stop || sched
+            old_stop = old.try &.stops.find { |stop| stop.station == sched.station }
+
+            stop || old_stop || sched
           end
         )
       end
@@ -136,7 +138,10 @@ module Tracks
       end
     end
 
-    def self.fetch_live(scheduled : Array(Tracks::Train)) : Array(Tracks::Train)
+    def self.fetch_live(
+      scheduled : Array(Tracks::Train),
+      old : Array(Tracks::Train) = [] of Tracks::Train
+    ) : Array(Tracks::Train)
       params = URI::Params.encode({
         api_key: ENV["API_KEY"],
         agency: "CT",
@@ -158,11 +163,10 @@ module Tracks
         .vehicles
         .map(&.trip_update)
         .map do |update|
-          train = scheduled.find { |train| train.id == update.trip.id }
+          sched = scheduled.find { |train| train.id == update.trip.id }
+          old_train = old.find { |train| train.id == update.trip.id }
 
-          if train
-            update.to_normal(train)
-          end
+          update.to_normal(sched, old_train) if sched
         end
         .compact
     end

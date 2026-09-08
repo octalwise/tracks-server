@@ -17,7 +17,7 @@ spawn do
 
     begin
       scheduled = schedule.get_scheduled
-      trains = Tracks::Live.fetch_live(scheduled)
+      trains = Tracks::Live.fetch_live(scheduled, trains)
     rescue err
     end
   end
