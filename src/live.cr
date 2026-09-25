@@ -39,7 +39,7 @@ module Tracks
           old_stop = old.try &.stops.find { |stop| stop.station == sched.station }
 
           stop || old_stop || sched
-        end
+        end.sort_by(&.expected)
 
         direction = @trip.direction == 0 ? "N" : "S"
 
@@ -62,7 +62,6 @@ module Tracks
       def get_location(direction : String, stops : Array(Tracks::Stop)) : {Int32?, Bool}
         now = Time.local(Time::Location.load("America/Los_Angeles"))
 
-        stops = stops.sort_by(&.expected)
         return {nil, false} if stops.first.expected > now || stops.last.expected <= now
 
         next_idx = stops.index! { |s| s.expected > now }
