@@ -34,67 +34,56 @@ module Tracks
           stop.to_normal(sched_stop)
         end
 
-        sched_last = scheduled.stops.last
-        live_last = stops.last
+        all_stops = scheduled.stops.map do |sched|
+          stop = stops.find { |stop| stop.station == sched.station }
+          old_stop = old.try &.stops.find { |stop| stop.station == sched.station }
 
-        if sched_last.station != live_last.station
-          # add missing last station
-          stops.push(
-            Tracks::Stop.new(
-              sched_last.station,
-              sched_last.scheduled,
-              sched_last.scheduled + (live_last.expected - live_last.scheduled)
-            )
-          )
+          stop || old_stop || sched
         end
 
-        now = Time.local(Time::Location.load("America/Los_Angeles"))
+        direction = @trip.direction == 0 ? "N" : "S"
 
-        next_idx = stops.index { |s| s.expected > now } || (stops.size - 1)
-        next_stop = stops[next_idx]
-
-        prev_idx = next_idx > 0 ? next_idx - 1 : 0
-        prev_stop = scheduled.stops[prev_idx]
-
-        idx1 = Tracks::STATIONS.index { |s| s.contains(prev_stop.station) }.not_nil!
-        idx2 = Tracks::STATIONS.index { |s| s.contains(next_stop.station) }.not_nil!
-
-        location =
-          if prev_stop.expected > now
-            nil
-          elsif idx1 == idx2
-            Tracks::STATIONS[idx1]
-          elsif idx2 == Tracks::STATIONS.size - 1 && now > next_stop.expected + 20.seconds
-            nil
-          elsif now >= next_stop.expected - 20.seconds
-            Tracks::STATIONS[idx2]
-          else
-            dt = next_stop.expected - prev_stop.expected
-            mix = dt.zero? ? 0.0 : (now - prev_stop.expected) / dt
-
-            # mix location
-            offset = (mix.clamp(0, 1) * (idx2 - idx1)).floor.to_i
-            Tracks::STATIONS[offset + idx1]
-          end
+        location, offset = get_location(direction, all_stops)
 
         local = @trip.route == "Local Weekday" || @trip.route == "Local Weekend"
         route = local ? "Local" : @trip.route
-
-        direction = @trip.direction == 0 ? "N" : "S"
 
         Tracks::Train.new(
           @trip.id,
           true,
           direction,
           route,
-          location.try &.side(direction),
-          scheduled.stops.map do |sched|
-            stop = stops.find { |stop| stop.station == sched.station }
-            old_stop = old.try &.stops.find { |stop| stop.station == sched.station }
-
-            stop || old_stop || sched
-          end
+          location,
+          offset,
+          all_stops,
         )
+      end
+
+      def get_location(direction : String, stops : Array(Tracks::Stop)) : {Int32?, Bool}
+        now = Time.local(Time::Location.load("America/Los_Angeles"))
+
+        stops = stops.sort_by(&.expected)
+        return {nil, false} if stops.first.expected > now || stops.last.expected <= now
+
+        next_idx = stops.index! { |s| s.expected > now }
+
+        next_stop = stops[next_idx]
+        prev_stop = stops[next_idx - 1]
+
+        idx1 = Tracks::STATIONS.index { |s| s.contains(prev_stop.station) }.not_nil!
+        idx2 = Tracks::STATIONS.index { |s| s.contains(next_stop.station) }.not_nil!
+
+        if now >= next_stop.expected - 20.seconds
+          {Tracks::STATIONS[idx2].side(direction), false}
+        else
+          dt = next_stop.expected - prev_stop.expected
+          mix = ((now - prev_stop.expected) / dt).clamp(0, 1)
+
+          offset = mix * (idx2 - idx1)
+          frac = offset - offset.trunc
+
+          {Tracks::STATIONS[idx1 + offset.to_i].side(direction), frac.abs > 0.25}
+        end
       end
     end
 

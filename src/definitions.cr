@@ -12,9 +12,11 @@ module Tracks
     @[JSON::Field(emit_null: true)]
     getter location : Int32?
 
+    getter offset : Bool
+
     getter stops : Array(Stop)
 
-    def initialize(@id, @live, @direction, @route, @location, @stops)
+    def initialize(@id, @live, @direction, @route, @location, @offset, @stops)
       @service = "normal"
     end
   end
