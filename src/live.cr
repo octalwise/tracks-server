@@ -25,21 +25,23 @@ module Tracks
 
       def to_normal(scheduled : Tracks::Train, old : Tracks::Train?) : Tracks::Train
         stops = @stops.map do |stop|
-          sched_stop =
-            scheduled
-              .stops
-              .find { |sched| sched.station == stop.station }
-              .not_nil!
-
+          sched_stop = scheduled.stops.find { |sched| sched.station == stop.station }.not_nil!
           stop.to_normal(sched_stop)
         end
 
-        all_stops = scheduled.stops.map do |sched|
-          stop = stops.find { |stop| stop.station == sched.station }
-          old_stop = old.try &.stops.find { |stop| stop.station == sched.station }
+        now = Time.local(Time::Location.load("America/Los_Angeles"))
+        delay = Time::Span.zero
 
-          stop || old_stop || sched
-        end.sort_by(&.expected)
+        all_stops = scheduled.stops.sort_by(&.scheduled).map do |sched|
+          found = stops.find { |stop| stop.station == sched.station }
+          old_stop = old.try &.stops.find { |stop| stop.station == sched.station && stop.expected <= now }
+
+          stop = found || old_stop ||
+            Tracks::Stop.new(sched.station, sched.scheduled, sched.scheduled + delay)
+
+          delay = stop.expected - stop.scheduled
+          stop
+        end
 
         direction = @trip.direction == 0 ? "N" : "S"
 
